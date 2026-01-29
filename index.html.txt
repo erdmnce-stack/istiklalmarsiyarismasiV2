@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İstiklal Marşı Bilgi Yarışması - Jürili Sistem</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" class="glass-panel">
+        <div id="login-view">
+            <h1>Yarışma Girişi</h1>
+            <div class="input-group">
+                <input type="text" id="userName" placeholder="Ad Soyad">
+                <input type="text" id="roomCode" placeholder="Oda Kodu">
+                <select id="userRole">
+                    <option value="competitor">Yarışmacı</option>
+                    <option value="host">Sunucu</option>
+                    <option value="judge">Jüri</option>
+                </select>
+            </div>
+            <button class="action-btn" onclick="joinQuiz()">Giriş Yap</button>
+        </div>
+
+        <div id="waiting-view" style="display: none;">
+            <h2 id="room-display">Oda: -</h2>
+            <div class="rules-box">
+                <h3>Yarışma Kuralları</h3>
+                <ul>
+                    <li>⏱ Cevap süresi: **30 Saniye**</li>
+                    <li>✅ Her doğru cevap: **5 Puan**</li>
+                    <li>✍️ Cevabınızı yazıp "Gönder"e basınız.</li>
+                    <li>⚖️ Değerlendirme Jüri tarafından yapılacaktır.</li>
+                </ul>
+            </div>
+            <div class="lobby-box">
+                <h3>Katılımcılar</h3>
+                <ul id="player-list" class="lobby-list"></ul>
+            </div>
+            <div id="host-start-area" style="display: none;">
+                <button class="action-btn" onclick="startQuiz()" style="background:#27ae60;">Yarışmayı Başlat</button>
+            </div>
+        </div>
+
+        <div id="quiz-view" style="display: none;">
+            <div id="timer">30.0</div>
+            <h2 id="q-text">Soru Yükleniyor...</h2>
+
+            <div id="competitor-area" style="display: none;">
+                <textarea id="answerInput" placeholder="Cevabınızı buraya yazın..."></textarea>
+                <button id="sendBtn" class="action-btn" onclick="sendAnswer()">Cevabı Gönder</button>
+                <p id="wait-judge-msg" style="display:none; color:#f1c40f;">Cevabınız iletildi, jüri onayı bekleniyor...</p>
+            </div>
+
+            <div id="judge-area" style="display: none;">
+                <h3>Gelen Cevaplar</h3>
+                <div id="judge-list" class="lobby-list"></div>
+            </div>
+
+            <div id="score-area" style="display: none;">
+                <h3>Puan Durumu (Alfabetik)</h3>
+                <div id="score-list" class="lobby-list"></div>
+            </div>
+
+            <div id="host-area" style="display: none; margin-top:20px;">
+                <button id="host-action-btn" class="action-btn" onclick="handleHostAction()">İlerle</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
