@@ -186,4 +186,5 @@ function handleHostAction() {
     }
 }
 
+
 function startQuiz() { db.ref('rooms/' + my.room).update({ currentQ: 0, step: 'question' }); }
