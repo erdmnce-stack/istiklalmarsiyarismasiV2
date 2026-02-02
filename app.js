@@ -114,25 +114,37 @@ function syncUI(step, qIdx) {
 }
 
 function startTimer() {
-    let time = 30.0;
+    let t = 30.0;
     clearInterval(timerInt);
     timerInt = setInterval(() => {
-        time = (time - 0.1).toFixed(1);
-        document.getElementById('timer').innerText = time;
-        if(time <= 0) {
+        t = (t - 0.1).toFixed(1);
+        document.getElementById('timer').innerText = t;
+        if(t <= 0) {
             clearInterval(timerInt);
-            if(my.role === 'competitor') document.getElementById('answerInput').disabled = true;
+            // SÜRE BİTTİĞİNDE: Eğer yarışmacı henüz göndermemişse otomatik gönder
+            if(my.role === 'competitor' && !document.getElementById('answerInput').disabled) {
+                sendAnswer();
+            }
         }
     }, 100);
 }
 
 function sendAnswer() {
-    const ans = document.getElementById('answerInput').value;
-    if(!ans) return alert("Cevap boş olamaz!");
-    db.ref('rooms/' + my.room + '/answers/' + my.name).set({ text: ans, status: 'pending' });
-    document.getElementById('answerInput').disabled = true;
+    const inputField = document.getElementById('answerInput');
+    const val = inputField.value.trim();
+    
+    // Eğer boşsa "Cevap yok" olarak işaretle, doluysa yazılanı al
+    const finalVal = val === "" ? "Cevap yok" : val;
+    
+    db.ref('rooms/' + my.room + '/answers/' + my.name).set({ 
+        text: finalVal, 
+        status: 'pending' 
+    });
+    
+    // Alanı kilitle ve mesajı göster
+    inputField.disabled = true;
     document.getElementById('sendBtn').style.display = 'none';
-    document.getElementById('wait-judge-msg').style.display = 'block';
+    document.getElementById('wait-msg').style.display = 'block';
 }
 
 function loadJudgeList() {
@@ -220,4 +232,5 @@ function handleHostAction() {
 
 
 function startQuiz() { db.ref('rooms/' + my.room).update({ currentQ: 0, step: 'question' }); }
+
 
