@@ -165,15 +165,47 @@ function judgeResult(pName, isCorrect) {
 }
 
 function loadScoreList() {
-    db.ref('rooms/' + my.room + '/users').once('value', snap => {
+    db.ref('rooms/' + my.room).once('value', snap => {
+        const data = snap.val();
+        const users = data.users || {};
+        const answers = data.answers || {};
+        
         const u = [];
-        snap.forEach(x => { u.push({name: x.key, score: x.val().score}); });
-        // ALFABETİK SIRALAMA
-        u.sort((a,b) => a.name.localeCompare(b.name));
-        document.getElementById('score-list').innerHTML = u.map(x => `<li><span>${x.name}</span><strong>${x.score} P</strong></li>`).join("");
+        Object.keys(users).forEach(name => {
+            const ansData = answers[name] || { text: "-", status: "pending" };
+            u.push({
+                name: name,
+                score: users[name].score,
+                answerText: ansData.text,
+                status: ansData.status
+            });
+        });
+
+        u.sort((a, b) => a.name.localeCompare(b.name));
+
+        const scoreListDiv = document.getElementById('score-list');
+        scoreListDiv.innerHTML = u.map(x => {
+            let statusBadge = '<span style="color: #f1c40f;">⏳ Bekliyor</span>'; 
+            if (x.status === "correct") {
+                statusBadge = '<span style="color: #27ae60;">✅ Doğru</span>';
+            } else if (x.status === "wrong") {
+                statusBadge = '<span style="color: #e74c3c;">❌ Yanlış</span>';
+            }
+
+            return `
+            <li style="display: flex; flex-direction: column; gap: 8px; padding: 15px; background: rgba(255,255,255,0.05); margin-bottom: 10px; border-radius: 12px; border-left: 5px solid ${x.status === 'correct' ? '#27ae60' : (x.status === 'wrong' ? '#e74c3c' : '#f1c40f')};">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 1.1rem;">${x.name}</strong>
+                    <span style="background: #f1c40f; color: #000; padding: 2px 10px; border-radius: 20px; font-weight: bold;">${x.score} Puan</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px;">
+                    <span style="color: #ddd;">Cevap: <i>"${x.answerText}"</i></span>
+                    ${statusBadge}
+                </div>
+            </li>`;
+        }).join("");
     });
 }
-
 function handleHostAction() {
     if(currentStep === 'question') {
         db.ref('rooms/' + my.room).update({ step: 'judge' });
@@ -188,3 +220,4 @@ function handleHostAction() {
 
 
 function startQuiz() { db.ref('rooms/' + my.room).update({ currentQ: 0, step: 'question' }); }
+
